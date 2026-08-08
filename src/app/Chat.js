@@ -17,7 +17,8 @@ export default function Chat() {
 
   // Preload audio on mount so playback starts instantly on button click
   useEffect(() => {
-    audioRef.current = new Audio('/bubu.mp3');
+    const basePath = process.env.NODE_ENV === 'production' ? '/custom-ai-bot' : '';
+    audioRef.current = new Audio(`${basePath}/bubu.mp3`);
     audioRef.current.preload = 'auto';
   }, []);
 
@@ -109,28 +110,47 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
-      });
+      let aiResponseText = '';
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `API error: ${response.statusText || response.status}`);
+      // Try client-side Gemini API call if API key is provided, or fallback to API route / mock
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+      if (apiKey) {
+        const { GoogleGenAI } = await import('@google/genai');
+        const ai = new GoogleGenAI({ apiKey });
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: input,
+        });
+        aiResponseText = response.text || '';
+      } else {
+        const basePath = process.env.NODE_ENV === 'production' ? '/custom-ai-bot' : '';
+        const response = await fetch(`${basePath}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: input }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `API error: ${response.statusText || response.status}`);
+        }
+
+        const data = await response.json();
+        aiResponseText = data.cleaned || data.original || '';
       }
 
-      const data = await response.json();
+      const { validateResponse } = await import('@/lib/responseValidator');
+      const validationResult = validateResponse(aiResponseText);
 
       // Add AI response to chat
       const aiMessage = {
         role: 'assistant',
-        content: data.cleaned,
+        content: validationResult.cleaned,
         metadata: {
-          passed: data.passed,
-          original: data.original,
-          foundPhrases: data.foundPhrases,
-          message: data.message,
+          passed: validationResult.passed,
+          original: validationResult.original,
+          foundPhrases: validationResult.foundPhrases,
+          message: validationResult.message,
         },
       };
 
