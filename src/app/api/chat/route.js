@@ -24,7 +24,7 @@ export async function POST(request) {
 
     // Call Google Gemini API
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-flash-latest',
       contents: message,
     });
 

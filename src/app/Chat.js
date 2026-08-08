@@ -170,7 +170,7 @@ export default function Chat() {
         const { GoogleGenAI } = await import('@google/genai');
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
-          model: 'gemini-2.0-flash',
+          model: 'gemini-flash-latest',
           contents: input,
         });
         aiResponseText = response.text || '';
