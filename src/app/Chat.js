@@ -2,10 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import ReactMarkdown from 'react-markdown';
 import styles from './chat.module.css';
 import bubuImage from '@/assets/bubu.png';
 import soundOnIcon from '@/assets/sound-on.svg';
 import soundOffIcon from '@/assets/sound-off.svg';
+import trashIcon from '@/assets/trash.svg';
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -14,6 +16,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const audioRef = useRef(null);
@@ -106,6 +109,16 @@ export default function Chat() {
     });
   };
 
+  const handleDeleteChat = () => {
+    setMessages([]);
+    try {
+      localStorage.removeItem('chat_messages');
+    } catch (error) {
+      console.error('Failed to clear chat_messages from localStorage:', error);
+    }
+    setShowDeleteModal(false);
+  };
+
   // Save messages to localStorage and scroll to bottom when messages update
   useEffect(() => {
     if (isLoaded) {
@@ -157,7 +170,7 @@ export default function Chat() {
         const { GoogleGenAI } = await import('@google/genai');
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.0-flash',
           contents: input,
         });
         aiResponseText = response.text || '';
@@ -211,6 +224,37 @@ export default function Chat() {
 
   return (
     <div className={styles.chatContainer} data-testid="chat-container">
+      {showDeleteModal && (
+        <div className={styles.modalOverlay} data-testid="delete-chat-modal">
+          <div className={styles.deleteModalPopover} role="dialog" aria-labelledby="delete-chat-title">
+            <header className={styles.deleteModalHeader}>
+              <div className={styles.deleteModalHeaderTitle}>
+                <h2 id="delete-chat-title" className={styles.deleteModalTitle}>Delete chat?</h2>
+              </div>
+            </header>
+            <div className={styles.deleteModalBody}>
+              This will delete the messages in this conversation.
+              <div className={styles.deleteModalActions}>
+                <button
+                  onClick={handleDeleteChat}
+                  className={`${styles.btn} ${styles.btnDanger}`}
+                  data-testid="delete-conversation-confirm-button"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className={`${styles.btn} ${styles.btnSecondary}`}
+                  data-testid="delete-conversation-cancel-button"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isLoaded && showModal && (
         <div className={styles.modalOverlay} data-testid="bubu-modal">
           <div className={styles.modalContent}>
@@ -241,20 +285,6 @@ export default function Chat() {
       )}
 
       <div className={styles.chatHeader} data-testid="chat-header">
-        <h1 data-testid="chat-title">Custom AI Chat</h1>
-        <button
-          onClick={toggleSound}
-          className={styles.soundToggleButton}
-          title={soundEnabled ? 'Disable Sound' : 'Enable Sound'}
-          data-testid="sound-toggle-button"
-        >
-          <Image
-            src={soundEnabled ? soundOnIcon : soundOffIcon}
-            alt={soundEnabled ? 'Sound On' : 'Sound Off'}
-            width={24}
-            height={24}
-          />
-        </button>
         <Image
           src={bubuImage}
           alt="Bubu"
@@ -272,6 +302,33 @@ export default function Chat() {
           }}
           style={{ cursor: 'pointer' }}
         />
+        <h1 data-testid="chat-title">Custom AI Chat</h1>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className={styles.deleteToggleButton}
+          title="Delete Chat"
+          data-testid="delete-chat-button"
+        >
+          <Image
+            src={trashIcon}
+            alt="Delete Chat"
+            width={60}
+            height={60}
+          />
+        </button>
+        <button
+          onClick={toggleSound}
+          className={styles.soundToggleButton}
+          title={soundEnabled ? 'Disable Sound' : 'Enable Sound'}
+          data-testid="sound-toggle-button"
+        >
+          <Image
+            src={soundEnabled ? soundOnIcon : soundOffIcon}
+            alt={soundEnabled ? 'Sound On' : 'Sound Off'}
+            width={18}
+            height={18}
+          />
+        </button>
       </div>
 
       <div className={styles.messagesContainer} data-testid="messages-container">
@@ -280,7 +337,9 @@ export default function Chat() {
             <div className={styles.messageRole} data-testid={`message-role-${idx}`}>
               {msg.role === 'user' ? '' : ''}
             </div>
-            <div className={styles.messageContent} data-testid={`message-content-${idx}`}>{msg.content}</div>
+            <div className={styles.messageContent} data-testid={`message-content-${idx}`}>
+              <ReactMarkdown>{msg.content}</ReactMarkdown>
+            </div>
             
             {msg.metadata && !msg.metadata.passed && (
               <div className={styles.metadata} data-testid={`metadata-${idx}`}>
@@ -295,7 +354,9 @@ export default function Chat() {
                       ))}
                     </ul>
                     <p><strong>Original response:</strong></p>
-                    <p className={styles.originalResponse} data-testid={`original-response-${idx}`}>{msg.metadata.original}</p>
+                    <div className={styles.originalResponse} data-testid={`original-response-${idx}`}>
+                      <ReactMarkdown>{msg.metadata.original}</ReactMarkdown>
+                    </div>
                   </div>
                 </details>
               </div>
