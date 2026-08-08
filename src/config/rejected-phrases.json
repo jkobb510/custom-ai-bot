@@ -1,0 +1,28 @@
+{
+  "hedgingPhrases": [
+    "I'd push back on",
+    "—",
+    "But it's important to consider",
+    "It's worth noting",
+    "I should mention",
+    "That said",
+    "In my opinion",
+    "Some might argue",
+    "I suppose",
+    "It could be argued",
+    "Arguably",
+    "It seems to me",
+    "To be fair",
+    "In fairness",
+    "One could say",
+    "It's debatable whether",
+    "It's worth noting that",
+    "Arguably, one could say",
+    "To put it another way",
+    "On the other hand",
+    "Conversely",
+    "That being said"
+  ],
+  "description": "Phrases detected as defensive filler or hedging language that are removed or rephrased during response validation",
+  "lastUpdated": "2026-08-03"
+}

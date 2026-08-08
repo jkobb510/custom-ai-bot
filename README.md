@@ -1,5 +1,18 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## About
+
+This is an isomorphic Next.js application that works like a ChatGPT clone, but calls the Google Gemini API (gemini-2.5-flash) instead of OpenAI's models.
+
+After the model generates a chat response, the response is run through a set of deterministic cleaning tests before it's shown to the user:
+
+- **The tests check for hedging/defensive filler**, rejecting responses that contain phrases defined in [`src/config/rejected-phrases.json`](src/config/rejected-phrases.json) such as `"I'd push back on"`, `"—"`, `"But it's important to consider"`, and `"It's worth noting"`.
+- **If a response fails a test**, it's evaluated for whether the flagged phrase is actually adding new information or is purely defensive filler:
+  - If it's purely defensive, the flagged phrase is stripped out.
+  - Otherwise, the response is rephrased to keep only the useful part.
+- **If a response passes**, it skips regeneration and is rendered on the UI as-is.
+- **If a response fails**, the cleaned/regenerated output is rendered on the UI instead of the original.
+
 ## Getting Started
 
 First, run the development server:
