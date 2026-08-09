@@ -17,7 +17,9 @@ export default function Chat() {
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const audioRef = useRef(null);
+  const modalJustClosedRef = useRef(false);
 
+  // Preload audio on mount so playback starts instantly on button click
   useEffect(() => {
     const basePath = process.env.NODE_ENV === 'production' ? '/custom-ai-bot' : '';
     audioRef.current = new Audio(`${basePath}/bubu.mp3`);
@@ -65,6 +67,8 @@ export default function Chat() {
 
   const handleCloseModal = (dontShowAgain = false) => {
     setShowModal(false);
+    modalJustClosedRef.current = true;
+    setTimeout(() => { modalJustClosedRef.current = false; }, 300);
     if (dontShowAgain) {
       try {
         localStorage.setItem('hide_bubu_modal', JSON.stringify(true));
@@ -258,6 +262,7 @@ const handleDeleteChat = () => {
           height={70}
           data-testid="chat-header-image"
           onClick={() => {
+            if (modalJustClosedRef.current) return;
             if (audioRef.current) {
               audioRef.current.currentTime = 0;
               audioRef.current.play().catch((err) => {
