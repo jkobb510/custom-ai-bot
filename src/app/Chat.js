@@ -297,33 +297,6 @@ const handleDeleteChat = () => {
             <div className={styles.messageContent} data-testid={`message-content-${idx}`}>
               <ReactMarkdown>{msg.content}</ReactMarkdown>
             </div>
-            
-            {msg.metadata && !msg.metadata.passed && (
-              <div className={styles.metadata} data-testid={`metadata-${idx}`}>
-                <div className={styles.metadataLabel} data-testid={`metadata-label-${idx}`}>✅ Response Cleaned</div>
-                <details data-testid={`metadata-details-${idx}`}>
-                  <summary className={styles.detailsSummary} data-testid={`metadata-summary-${idx}`}>Details ({msg.metadata.foundPhrases?.length || 0} phrases removed)</summary>
-                  <div className={styles.metadataDetails} data-testid={`metadata-content-${idx}`}>
-                    <p><strong>Detected hedging phrases:</strong></p>
-                    <ul data-testid={`hedging-phrases-list-${idx}`}>
-                      {msg.metadata.foundPhrases?.map((phrase, i) => (
-                        <li key={i} data-testid={`hedging-phrase-${idx}-${i}`}>{phrase}</li>
-                      ))}
-                    </ul>
-                    <p><strong>Original response:</strong></p>
-                    <div className={styles.originalResponse} data-testid={`original-response-${idx}`}>
-                      <ReactMarkdown>{msg.metadata.original}</ReactMarkdown>
-                    </div>
-                  </div>
-                </details>
-              </div>
-            )}
-            
-            {msg.metadata?.passed && (
-              <div className={styles.metadata} data-testid={`metadata-passed-${idx}`}>
-                <div className={styles.metadataLabel} data-testid={`metadata-label-passed-${idx}`}></div>
-              </div>
-            )}
 
             {msg.isError && (
               <div className={styles.errorBadge} data-testid={`error-badge-${idx}`}>Error</div>
