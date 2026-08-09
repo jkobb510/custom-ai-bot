@@ -5,8 +5,6 @@ import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import styles from './chat.module.css';
 import bubuImage from '@/assets/bubu.png';
-import soundOnIcon from '@/assets/sound-on.svg';
-import soundOffIcon from '@/assets/sound-off.svg';
 import trashIcon from '@/assets/trash.svg';
 
 export default function Chat() {
@@ -15,34 +13,23 @@ export default function Chat() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(true);
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const audioRef = useRef(null);
 
-  const soundEnabledRef = useRef(soundEnabled);
-  useEffect(() => {
-    soundEnabledRef.current = soundEnabled;
-  }, [soundEnabled]);
-
-  // Preload audio on mount so playback starts instantly on button click
   useEffect(() => {
     const basePath = process.env.NODE_ENV === 'production' ? '/custom-ai-bot' : '';
     audioRef.current = new Audio(`${basePath}/bubu.mp3`);
     audioRef.current.preload = 'auto';
   }, []);
 
-  // Load sound state, modal preference, and messages from localStorage on mount
+  // Load modal preference and messages from localStorage on mount
   useEffect(() => {
     try {
       const dontShowModal = localStorage.getItem('hide_bubu_modal');
       if (dontShowModal && JSON.parse(dontShowModal)) {
         setShowModal(false);
-      }
-      const savedSound = localStorage.getItem('sound_enabled');
-      if (savedSound !== null) {
-        setSoundEnabled(JSON.parse(savedSound));
       }
       const saved = localStorage.getItem('chat_messages');
       if (saved) {
@@ -85,31 +72,9 @@ export default function Chat() {
         console.error('Failed to save hide_bubu_modal to localStorage:', error);
       }
     }
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.muted = !soundEnabledRef.current;
-      audioRef.current.play().catch((err) => {
-        console.warn('Audio playback was prevented or failed:', err);
-      });
-    }
   };
 
-  const toggleSound = () => {
-    setSoundEnabled((prev) => {
-      const next = !prev;
-      if (audioRef.current) {
-        audioRef.current.muted = !next;
-      }
-      try {
-        localStorage.setItem('sound_enabled', JSON.stringify(next));
-      } catch (error) {
-        console.error('Failed to save sound_enabled to localStorage:', error);
-      }
-      return next;
-    });
-  };
-
-  const handleDeleteChat = () => {
+const handleDeleteChat = () => {
     setMessages([]);
     try {
       localStorage.removeItem('chat_messages');
@@ -293,7 +258,7 @@ export default function Chat() {
           height={70}
           data-testid="chat-header-image"
           onClick={() => {
-            if (audioRef.current && soundEnabled) {
+            if (audioRef.current) {
               audioRef.current.currentTime = 0;
               audioRef.current.play().catch((err) => {
                 console.warn('Audio playback failed:', err);
@@ -314,19 +279,6 @@ export default function Chat() {
             alt="Delete Chat"
             width={60}
             height={60}
-          />
-        </button>
-        <button
-          onClick={toggleSound}
-          className={styles.soundToggleButton}
-          title={soundEnabled ? 'Disable Sound' : 'Enable Sound'}
-          data-testid="sound-toggle-button"
-        >
-          <Image
-            src={soundEnabled ? soundOnIcon : soundOffIcon}
-            alt={soundEnabled ? 'Sound On' : 'Sound Off'}
-            width={18}
-            height={18}
           />
         </button>
       </div>
