@@ -1,0 +1,37 @@
+'use client';
+
+import Image from 'next/image';
+import bubuImage from '@/assets/bubu.png';
+import trashIcon from '@/assets/trash.svg';
+
+export default function ChatHeader({ onAvatarClick, onDeleteClick }) {
+  return (
+    <div className="chatHeader" data-testid="chat-header">
+      <Image
+        src={bubuImage}
+        alt="Bubu"
+        className="headerImage"
+        width={70}
+        height={70}
+        data-testid="chat-header-image"
+        onClick={onAvatarClick}
+        style={{ cursor: 'pointer' }}
+      />
+      <h1 data-testid="chat-title">Custom AI Chat</h1>
+      <button
+        onClick={onDeleteClick}
+        className="deleteToggleButton"
+        title="Delete Chat"
+        data-testid="delete-chat-button"
+        type="button"
+      >
+        <Image
+          src={trashIcon}
+          alt="Delete Chat"
+          width={60}
+          height={60}
+        />
+      </button>
+    </div>
+  );
+}
