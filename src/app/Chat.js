@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
-import styles from './chat.module.css';
+import './chat.css';
 import bubuImage from '@/assets/bubu.png';
 import trashIcon from '@/assets/trash.svg';
 
@@ -192,28 +192,28 @@ const handleDeleteChat = () => {
   };
 
   return (
-    <div className={styles.chatContainer} data-testid="chat-container">
+    <div className="chatContainer" data-testid="chat-container">
       {showDeleteModal && (
-        <div className={styles.modalOverlay} data-testid="delete-chat-modal">
-          <div className={styles.deleteModalPopover} role="dialog" aria-labelledby="delete-chat-title">
-            <header className={styles.deleteModalHeader}>
-              <div className={styles.deleteModalHeaderTitle}>
-                <h2 id="delete-chat-title" className={styles.deleteModalTitle}>Delete chat?</h2>
+        <div className="modalOverlay" data-testid="delete-chat-modal">
+          <div className="deleteModalPopover" role="dialog" aria-labelledby="delete-chat-title">
+            <header className="deleteModalHeader">
+              <div className="deleteModalHeaderTitle">
+                <h2 id="delete-chat-title" className="deleteModalTitle">Delete chat?</h2>
               </div>
             </header>
-            <div className={styles.deleteModalBody}>
+            <div className="deleteModalBody">
               This will delete the messages in this conversation.
-              <div className={styles.deleteModalActions}>
+              <div className="deleteModalActions">
                 <button
                   onClick={handleDeleteChat}
-                  className={`${styles.btn} ${styles.btnDanger}`}
+                  className="btn btnDanger"
                   data-testid="delete-conversation-confirm-button"
                 >
                   Delete
                 </button>
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className={`${styles.btn} ${styles.btnSecondary}`}
+                  className="btn btnSecondary"
                   data-testid="delete-conversation-cancel-button"
                 >
                   Cancel
@@ -225,8 +225,8 @@ const handleDeleteChat = () => {
       )}
 
       {isLoaded && showModal && (
-        <div className={styles.modalOverlay} data-testid="bubu-modal">
-          <div className={styles.modalContent}>
+        <div className="modalOverlay" data-testid="bubu-modal">
+          <div className="modalContent">
             <iframe
               src="https://tenor.com/embed/4715181167776202242"
               width="100%"
@@ -237,14 +237,14 @@ const handleDeleteChat = () => {
             />
             <button
               onClick={() => handleCloseModal(false)}
-              className={styles.closeModalButton}
+              className="closeModalButton"
               data-testid="close-modal-button"
             >
               Enter Chat
             </button>
             <button
               onClick={() => handleCloseModal(true)}
-              className={styles.dontShowModalButton}
+              className="dontShowModalButton"
               data-testid="dont-show-modal-button"
             >
               Don&apos;t show this modal again
@@ -253,11 +253,11 @@ const handleDeleteChat = () => {
         </div>
       )}
 
-      <div className={styles.chatHeader} data-testid="chat-header">
+      <div className="chatHeader" data-testid="chat-header">
         <Image
           src={bubuImage}
           alt="Bubu"
-          className={styles.headerImage}
+          className="headerImage"
           width={70}
           height={70}
           data-testid="chat-header-image"
@@ -275,7 +275,7 @@ const handleDeleteChat = () => {
         <h1 data-testid="chat-title">Custom AI Chat</h1>
         <button
           onClick={() => setShowDeleteModal(true)}
-          className={styles.deleteToggleButton}
+          className="deleteToggleButton"
           title="Delete Chat"
           data-testid="delete-chat-button"
         >
@@ -288,25 +288,25 @@ const handleDeleteChat = () => {
         </button>
       </div>
 
-      <div className={styles.messagesContainer} data-testid="messages-container">
+      <div className="messagesContainer" data-testid="messages-container">
         {messages.map((msg, idx) => (
-          <div key={idx} className={`${styles.message} ${styles[msg.role]}`} data-testid={`message-${msg.role}-${idx}`}>
-            <div className={styles.messageRole} data-testid={`message-role-${idx}`}>
+          <div key={idx} className={`message ${msg.role}`} data-testid={`message-${msg.role}-${idx}`}>
+            <div className="messageRole" data-testid={`message-role-${idx}`}>
               {msg.role === 'user' ? '' : ''}
             </div>
-            <div className={styles.messageContent} data-testid={`message-content-${idx}`}>
+            <div className="messageContent" data-testid={`message-content-${idx}`}>
               <ReactMarkdown>{msg.content}</ReactMarkdown>
             </div>
 
             {msg.isError && (
-              <div className={styles.errorBadge} data-testid={`error-badge-${idx}`}>Error</div>
+              <div className="errorBadge" data-testid={`error-badge-${idx}`}>Error</div>
             )}
           </div>
         ))}
         <div ref={messagesEndRef} data-testid="messages-end" />
       </div>
 
-      <form onSubmit={handleSubmit} className={styles.inputForm} data-testid="chat-form">
+      <form onSubmit={handleSubmit} className="inputForm" data-testid="chat-form">
         <textarea
           ref={textareaRef}
           value={input}
@@ -314,11 +314,11 @@ const handleDeleteChat = () => {
           onKeyDown={handleKeyDown}
           placeholder="Type your message..."
           disabled={loading}
-          className={styles.input}
+          className="input"
           rows={1}
           data-testid="chat-input"
         />
-        <button type="submit" disabled={loading} className={styles.submitButton} data-testid="chat-submit-button">
+        <button type="submit" disabled={loading} className="submitButton" data-testid="chat-submit-button">
           {loading ? 'Sending...' : 'Send'}
         </button>
       </form>
