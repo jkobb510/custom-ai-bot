@@ -1,4 +1,28 @@
 import { useRef } from 'react';
+import { openDB } from 'idb';
+
+const DB_NAME = 'chatAppDB';
+const STORE_NAME = 'appData';
+
+async function initDB() {
+  return openDB(DB_NAME, 1, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    },
+  });
+}
+
+async function saveToDB(key, value) {
+  const db = await initDB();
+  return db.put(STORE_NAME, value, key);
+}
+
+async function deleteFromDB(key) {
+  const db = await initDB();
+  return db.delete(STORE_NAME, key);
+}
 
 export function useChatHandlers(
   input,
@@ -17,21 +41,17 @@ export function useChatHandlers(
     modalJustClosedRef.current = true;
     setTimeout(() => { modalJustClosedRef.current = false; }, 300);
     if (dontShowAgain) {
-      try {
-        localStorage.setItem('hide_bubu_modal', JSON.stringify(true));
-      } catch (error) {
-        console.error('Failed to save hide_bubu_modal to localStorage:', error);
-      }
+      saveToDB('hide_bubu_modal', true).catch((error) => {
+        console.error('Failed to save hide_bubu_modal to IDB:', error);
+      });
     }
   };
 
   const handleDeleteChat = () => {
     setMessages([]);
-    try {
-      localStorage.removeItem('chat_messages');
-    } catch (error) {
-      console.error('Failed to clear chat_messages from localStorage:', error);
-    }
+    deleteFromDB('chat_messages').catch((error) => {
+      console.error('Failed to clear chat_messages from IDB:', error);
+    });
     setShowDeleteModal(false);
   };
 

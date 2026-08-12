@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useSyncExternalStore } from 'react';
+import { openDB } from 'idb';
 import './chat.css';
 import BubuModal from '@/components/BubuModal';
 import DeleteChatModal from '@/components/DeleteChatModal';
@@ -9,26 +10,27 @@ import MessageItem from '@/components/MessageItem';
 import ChatInput from '@/components/ChatInput';
 import { useChatHandlers } from '@/hooks/useChatHandlers';
 
-function getInitialShowModal() {
-  if (typeof window === 'undefined') return true;
-  try {
-    const dontShowModal = localStorage.getItem('hide_bubu_modal');
-    return !(dontShowModal && JSON.parse(dontShowModal));
-  } catch (error) {
-    console.error('Failed to load hide_bubu_modal from localStorage:', error);
-    return true;
-  }
+const DB_NAME = 'chatAppDB';
+const STORE_NAME = 'appData';
+
+async function initDB() {
+  return openDB(DB_NAME, 1, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    },
+  });
 }
 
-function getInitialMessages() {
-  if (typeof window === 'undefined') return [];
-  try {
-    const saved = localStorage.getItem('chat_messages');
-    return saved ? JSON.parse(saved) : [];
-  } catch (error) {
-    console.error('Failed to load chat_messages from localStorage:', error);
-    return [];
-  }
+async function getFromDB(key) {
+  const db = await initDB();
+  return db.get(STORE_NAME, key);
+}
+
+async function saveToDB(key, value) {
+  const db = await initDB();
+  return db.put(STORE_NAME, value, key);
 }
 
 function useIsClient() {
@@ -41,16 +43,33 @@ function useIsClient() {
 
 export default function Chat() {
   const isClient = useIsClient();
-  const [messages, setMessages] = useState(getInitialMessages);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(getInitialShowModal);
+  const [showModal, setShowModal] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const audioRef = useRef(null);
   const modalJustClosedRef = useRef(false);
   const didMountRef = useRef(false);
+
+  // Load initial data from IDB
+  useEffect(() => {
+    if (!isClient) return;
+
+    Promise.all([
+      getFromDB('chat_messages'),
+      getFromDB('hide_bubu_modal')
+    ]).then(([savedMessages, dontShowModal]) => {
+      if (savedMessages) setMessages(Array.isArray(savedMessages) ? savedMessages : []);
+      if (dontShowModal !== undefined) setShowModal(!dontShowModal);
+      didMountRef.current = true;
+    }).catch((error) => {
+      console.error('Failed to load from IDB:', error);
+      didMountRef.current = true;
+    });
+  }, [isClient]);
 
   // Preload audio on mount so playback starts instantly on button click
   useEffect(() => {
@@ -61,19 +80,15 @@ export default function Chat() {
 
   const { handleCloseModal, handleDeleteChat, handleInputChange, handleKeyDown, handleSubmit, handleAvatarClick } = useChatHandlers(input, setInput, setMessages, setLoading, setShowModal, setShowDeleteModal, messagesEndRef, textareaRef, audioRef, modalJustClosedRef);
 
-  // Save messages to localStorage and scroll to bottom when messages update
+  // Save messages to IDB and scroll to bottom when messages update
   useEffect(() => {
-    if (didMountRef.current) {
-      try {
-        localStorage.setItem('chat_messages', JSON.stringify(messages));
-      } catch (error) {
-        console.error('Failed to save messages to localStorage:', error);
-      }
-    } else {
-      didMountRef.current = true;
-    }
+    if (!isClient || !didMountRef.current) return;
+
+    saveToDB('chat_messages', messages).catch((error) => {
+      console.error('Failed to save messages to IDB:', error);
+    });
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isClient]);
 
 
   return (
