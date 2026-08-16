@@ -1,6 +1,7 @@
 'use client';
 
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function MessageItem({ msg, idx }) {
   return (
@@ -9,7 +10,43 @@ export default function MessageItem({ msg, idx }) {
         {msg.role === 'user' ? '' : ''}
       </div>
       <div className="messageContent" data-testid={`message-content-${idx}`}>
-        <ReactMarkdown>{msg.content}</ReactMarkdown>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            table: ({ children, ...props }) => (
+              <table className="markdownTable" {...props}>
+                {children}
+              </table>
+            ),
+            thead: ({ children, ...props }) => (
+              <thead className="markdownTableHead" {...props}>
+                {children}
+              </thead>
+            ),
+            tbody: ({ children, ...props }) => (
+              <tbody className="markdownTableBody" {...props}>
+                {children}
+              </tbody>
+            ),
+            tr: ({ children, ...props }) => (
+              <tr className="markdownTableRow" {...props}>
+                {children}
+              </tr>
+            ),
+            th: ({ children, ...props }) => (
+              <th className="markdownTableCell markdownTableHeaderCell" {...props}>
+                {children}
+              </th>
+            ),
+            td: ({ children, ...props }) => (
+              <td className="markdownTableCell" {...props}>
+                {children}
+              </td>
+            ),
+          }}
+        >
+          {msg.content}
+        </ReactMarkdown>
       </div>
 
       {msg.isError && (

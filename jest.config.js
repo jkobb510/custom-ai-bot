@@ -21,6 +21,7 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^react-markdown$': '<rootDir>/tests/mocks/react-markdown.js',
+    '^remark-gfm$': '<rootDir>/tests/mocks/remark-gfm.js',
   },
   testMatch: ['**/__tests__/**/*.test.js', '**/*.test.js'],
 }

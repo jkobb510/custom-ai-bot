@@ -136,6 +136,34 @@
   margin-bottom: 0;
 }
 
+.messageContent .markdownTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 14px;
+  overflow-x: auto;
+}
+
+.messageContent .markdownTableHead {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.messageContent .markdownTableCell {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.messageContent .markdownTableHeaderCell {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.messageContent .markdownTableBody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
 .messageContent ul,
 .messageContent ol {
   margin: 8px 0;
