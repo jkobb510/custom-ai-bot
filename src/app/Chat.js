@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useRef, useEffect, useSyncExternalStore } from 'react';
-import { getFromDB, saveToDB } from '@/lib/db';
+import { useState, useRef, useSyncExternalStore } from 'react';
 import './chat.css';
 import BubuModal from '@/components/BubuModal';
 import DeleteChatModal from '@/components/DeleteChatModal';
 import ChatHeader from '@/components/ChatHeader';
-import MessageItem from '@/components/MessageItem';
 import ChatInput from '@/components/ChatInput';
+import MessagesContainer from '@/components/MessagesContainer';
+import { useAutoScroll } from '@/hooks/useAutoScroll';
+import { useChatAudio } from '@/hooks/useChatAudio';
 import { useChatHandlers } from '@/hooks/useChatHandlers';
 import { useChatPersistence } from '@/hooks/useChatPersistence';
 const basePath = process.env.NODE_ENV === 'production' ? '/custom-ai-bot' : '';
@@ -25,24 +26,11 @@ export default function Chat() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
-  const audioRef = useRef(null);
   const modalJustClosedRef = useRef(false);
 
-  useEffect(() => {
-    const audio = new Audio(`${basePath}/bubu.mp3`);
-    audio.preload = 'auto';
-    audioRef.current = audio;
-  }, []);
-
-  useEffect(() => {
-    if (!isClient || !isLoaded) return;
-    saveToDB('chat_messages', messages).catch((error) => {
-      console.error('Failed to save messages to IDB:', error);
-    });
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isClient, isLoaded]);
+  const audioRef = useChatAudio(`${basePath}/bubu.mp3`);
+  const messagesEndRef = useAutoScroll(messages, isClient && isLoaded);
 
   const handlers = useChatHandlers({ 
     input, 
@@ -75,12 +63,11 @@ export default function Chat() {
         onDeleteClick={() => setShowDeleteModal(true)}
       />
 
-      <div className="messagesContainer" data-testid="messages-container">
-        {isClient && messages.map((msg, idx) => (
-          <MessageItem key={idx} msg={msg} idx={idx} />
-        ))}
-        <div ref={messagesEndRef} data-testid="messages-end" />
-      </div>
+      <MessagesContainer
+        isClient={isClient}
+        messages={messages}
+        messagesEndRef={messagesEndRef}
+      />
 
       <ChatInput
         input={input}

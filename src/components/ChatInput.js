@@ -16,12 +16,11 @@ export default function ChatInput({
         onChange={onChange}
         onKeyDown={onKeyDown}
         placeholder="Type your message..."
-        disabled={loading}
         className="input"
         rows={1}
         data-testid="chat-input"
       />
-      <button type="submit" disabled={loading} className="submitButton" data-testid="chat-submit-button">
+      <button type="submit" className="submitButton" data-testid="chat-submit-button">
         {loading ? 'Sending...' : 'Send'}
       </button>
     </form>

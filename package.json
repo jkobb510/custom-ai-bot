@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:report": "open ./test-reports/jest-html-report.html"
   },
   "dependencies": {
     "@google/genai": "^2.16.0",
@@ -17,7 +21,14 @@
     "react-markdown": "^10.1.0"
   },
   "devDependencies": {
+    "@babel/preset-react": "^8.0.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.4",
     "eslint": "^9",
-    "eslint-config-next": "16.3.0"
+    "eslint-config-next": "16.3.0",
+    "jest": "^30.4.2",
+    "jest-html-reporters": "^3.1.7",
+    "jest-environment-jsdom": "^30.4.1"
   }
 }

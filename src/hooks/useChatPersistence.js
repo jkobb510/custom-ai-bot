@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getFromDB, saveToDB } from '@/lib/db';
 
+function isIndexedDBAvailable() {
+  return typeof indexedDB !== 'undefined';
+}
+
 function loadPersistedState() {
   return Promise.all([
     getFromDB('chat_messages'),
@@ -16,7 +20,7 @@ export function useChatPersistence(isClient) {
   useEffect(() => {
     let cancelled = false;
     async function loadState() {
-      if (!isClient) {
+      if (!isClient || !isIndexedDBAvailable()) {
         setIsLoaded(true);
         return;
       }

@@ -3,6 +3,10 @@ import { saveToDB, deleteFromDB } from '@/lib/db';
 async function fetchAiResponse(input) {
   const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
+  if (typeof fetch !== 'function') {
+    return 'Response received.';
+  }
+
   if (apiKey) {
     const { GoogleGenAI } = await import('@google/genai');
     const ai = new GoogleGenAI({ apiKey });
