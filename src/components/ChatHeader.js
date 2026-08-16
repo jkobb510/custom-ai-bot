@@ -1,14 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import bubuImage from '@/assets/bubu.png';
-import trashIcon from '@/assets/trash.svg';
+import assetConfig from '@/config/assets.json';
 
 export default function ChatHeader({ onAvatarClick, onDeleteClick }) {
   return (
     <div className="chatHeader" data-testid="chat-header">
       <Image
-        src={bubuImage}
+        src={assetConfig.header.bubuImage}
         alt="Bubu"
         className="headerImage"
         width={70}
@@ -26,7 +25,7 @@ export default function ChatHeader({ onAvatarClick, onDeleteClick }) {
         type="button"
       >
         <Image
-          src={trashIcon}
+          src={assetConfig.header.trashIcon}
           alt="Delete Chat"
           width={60}
           height={60}

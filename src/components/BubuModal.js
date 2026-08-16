@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import assetConfig from '@/config/assets.json';
 
 export default function BubuModal({ isOpen, onClose }) {
   // Load Tenor embed script when modal is visible
@@ -12,13 +13,13 @@ export default function BubuModal({ isOpen, onClose }) {
       }
       const script = document.createElement('script');
       script.id = 'tenor-embed-script';
-      script.src = 'https://tenor.com/embed.js';
+      script.src = assetConfig.tenor.embedScriptSrc;
       script.async = true;
       document.body.appendChild(script);
       return () => {
-        const s = document.getElementById('tenor-embed-script');
-        if (s) {
-          s.remove();
+        const embeddedScript = document.getElementById('tenor-embed-script');
+        if (embeddedScript) {
+          embeddedScript.remove();
         }
       };
     }
@@ -30,11 +31,11 @@ export default function BubuModal({ isOpen, onClose }) {
     <div className="modalOverlay" data-testid="bubu-modal">
       <div className="modalContent">
         <iframe
-          src="https://tenor.com/embed/4715181167776202242"
+          src={assetConfig.tenor.embedSrc}
           width="100%"
           height="280"
           style={{ border: 'none', borderRadius: '12px', overflow: 'hidden' }}
-          title="Bubu Work Bubu Focus Sticker"
+          title={assetConfig.tenor.title}
           allowFullScreen
         />
         <button

@@ -1,0 +1,14 @@
+{
+  "header": {
+    "bubuImage": "/bubu.png",
+    "trashIcon": "/trash.svg"
+  },
+  "audio": {
+    "bubuMp3": "/bubu.mp3"
+  },
+  "tenor": {
+    "embedScriptSrc": "https://tenor.com/embed.js",
+    "embedSrc": "https://tenor.com/embed/4715181167776202242",
+    "title": "Bubu Work Bubu Focus Sticker"
+  }
+}

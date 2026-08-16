@@ -11,6 +11,7 @@ import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { useChatAudio } from '@/hooks/useChatAudio';
 import { useChatHandlers } from '@/hooks/useChatHandlers';
 import { useChatPersistence } from '@/hooks/useChatPersistence';
+import assetConfig from '@/config/assets.json';
 const basePath = process.env.NODE_ENV === 'production' ? '/custom-ai-bot' : '';
 function useIsClient() {
   return useSyncExternalStore(
@@ -29,7 +30,7 @@ export default function Chat() {
   const textareaRef = useRef(null);
   const modalJustClosedRef = useRef(false);
 
-  const audioRef = useChatAudio(`${basePath}/bubu.mp3`);
+  const audioRef = useChatAudio(`${basePath}${assetConfig.audio.bubuMp3}`);
   const messagesEndRef = useAutoScroll(messages, isClient && isLoaded);
 
   const handlers = useChatHandlers({ 
